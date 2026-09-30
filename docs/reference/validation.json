@@ -1,0 +1,11 @@
+{
+  "tables": 34,
+  "inline_foreign_keys": 71,
+  "static_checks": [
+    "unique table and column names",
+    "referenced tables exist",
+    "creation order for inline foreign keys",
+    "unique constraints reference existing columns"
+  ],
+  "not_executed": "No MySQL server/client available. SQL import and runtime transaction tests remain required."
+}

@@ -1,0 +1,23 @@
+erDiagram
+    ITEMS ||--|{ ITEM_UNITS : units
+    ITEM_UNITS ||--o{ ITEM_BARCODES : barcodes
+    ITEM_UNITS ||--o{ DOCUMENT_LINES : sold_or_bought
+    PARTIES o|--o{ DOCUMENTS : party
+    DOCUMENTS ||--|{ DOCUMENT_LINES : lines
+    DOCUMENTS o|--o{ DOCUMENTS : original_document
+    DOCUMENT_LINES o|--o{ DOCUMENT_LINES : original_line
+    DOCUMENT_LINES ||--o{ STOCK_MOVEMENTS : movements
+    DOCUMENT_LINES ||--o{ STOCK_RESERVATIONS : holds
+    ITEMS ||--o{ STOCK_MOVEMENTS : item
+    WAREHOUSES ||--o{ STOCK_MOVEMENTS : warehouse
+    ITEMS ||--o{ STOCK_BALANCES : balances
+    WAREHOUSES ||--o{ STOCK_BALANCES : location
+    DOCUMENTS o|--o| JOURNAL_ENTRIES : posting
+    PAYMENTS o|--o| JOURNAL_ENTRIES : posting
+    JOURNAL_ENTRIES ||--|{ JOURNAL_LINES : entries
+    ACCOUNTS ||--o{ JOURNAL_LINES : ledger
+    PAYMENTS ||--o{ PAYMENT_ALLOCATIONS : allocations
+    DOCUMENTS ||--o{ PAYMENT_ALLOCATIONS : settlement
+    DOCUMENTS ||--o| EINVOICE_DOCUMENTS : electronic_copy
+    EINVOICE_DEVICES ||--o{ EINVOICE_DOCUMENTS : issuer
+    EINVOICE_DOCUMENTS ||--o{ EINVOICE_SUBMISSIONS : attempts
