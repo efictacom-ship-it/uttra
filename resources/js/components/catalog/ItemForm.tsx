@@ -87,10 +87,13 @@ export default function ItemForm({ item, options, onClose }: { item: ItemRecord 
 
         const options_ = { onSuccess: () => onClose(), preserveScroll: true };
 
+        // transform() في نسخة React لا تُرجع الفورم، فالاستدعاء يتم على سطرين لا بالتسلسل
+        form.transform(() => payload);
+
         if (item) {
-            form.transform(() => payload).patch(`/items/${item.id}`, options_);
+            form.patch(`/items/${item.id}`, options_);
         } else {
-            form.transform(() => payload).post('/items', options_);
+            form.post('/items', options_);
         }
     };
 
