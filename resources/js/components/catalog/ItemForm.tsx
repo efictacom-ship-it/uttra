@@ -1,4 +1,5 @@
 import { useForm } from '@inertiajs/react';
+import BarcodeScannerButton from '@/components/BarcodeScannerButton';
 import { Alert, Button, Card, Field, Select, TextInput } from '@/components/ui';
 
 export interface ItemUnitRecord {
@@ -192,7 +193,13 @@ export default function ItemForm({ item, options, onClose }: { item: ItemRecord 
                                     </Select>
                                 </Field>
                                 <Field label="الباركود" hint="افصل بفاصلة عند تعدد الباركود.">
-                                    <TextInput dir="ltr" className="num" value={row.barcodes} onChange={(e) => setUnit(index, { barcodes: e.target.value })} />
+                                    <div className="flex gap-2">
+                                        <TextInput dir="ltr" className="num" value={row.barcodes} onChange={(e) => setUnit(index, { barcodes: e.target.value })} />
+                                        <BarcodeScannerButton
+                                            label=""
+                                            onScan={(code) => setUnit(index, { barcodes: row.barcodes ? `${row.barcodes}, ${code}` : code })}
+                                        />
+                                    </div>
                                 </Field>
                                 <div>
                                     {form.data.units.length > 1 && (

@@ -1,6 +1,7 @@
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
+import BarcodeScannerButton from '@/components/BarcodeScannerButton';
 import { Alert, Badge, Button, Card, Field, Money, NumberInput, Select, Table, TextInput } from '@/components/ui';
 import { dateAr, methodLabels, money } from '@/lib/format';
 import type { PageProps } from '@/types';
@@ -159,6 +160,24 @@ export default function Cashier() {
         }
     };
 
+    const [scanNotFound, setScanNotFound] = useState(false);
+
+    /** يبحث عن مطابقة باركود دقيقة ويضيف الصنف مباشرة، بلا حاجة لمفتاح Enter. */
+    const onCameraScan = (code: string) => {
+        for (const item of options.items) {
+            for (const unit of item.units) {
+                if (unit.barcodes?.some((b) => b.barcode === code)) {
+                    setScanNotFound(false);
+                    addLine(item, unit);
+                    return;
+                }
+            }
+        }
+        setScanNotFound(true);
+        setQuery(code);
+        focusSearch();
+    };
+
     const patchLine = (key: string, changes: Partial<CartLine>) => {
         setLines((prev) => prev.map((l) => (l.key === key ? { ...l, ...changes } : l)));
     };
@@ -245,14 +264,21 @@ export default function Cashier() {
                     <Card>
                         <div className="grid gap-3 sm:grid-cols-4">
                             <Field label="بحث بالاسم / SKU / الباركود">
-                                <TextInput
-                                    id="cashier-search"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    onKeyDown={onSearchKeyDown}
-                                    placeholder="امسح الباركود أو اكتب اسم الصنف..."
-                                    autoFocus
-                                />
+                                <div className="flex gap-2">
+                                    <TextInput
+                                        id="cashier-search"
+                                        value={query}
+                                        onChange={(e) => {
+                                            setScanNotFound(false);
+                                            setQuery(e.target.value);
+                                        }}
+                                        onKeyDown={onSearchKeyDown}
+                                        placeholder="امسح الباركود أو اكتب اسم الصنف..."
+                                        autoFocus
+                                    />
+                                    <BarcodeScannerButton label="" onScan={onCameraScan} />
+                                </div>
+                                {scanNotFound && <span className="mt-1 block text-xs font-medium text-rose-600">لا يوجد صنف بهذا الباركود.</span>}
                             </Field>
                             <Field label="العميل (اختياري، إلزامي للبيع الآجل)">
                                 <Select value={String(partyId)} onChange={(e) => setPartyId(e.target.value ? Number(e.target.value) : '')}>
