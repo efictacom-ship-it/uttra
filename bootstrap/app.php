@@ -14,6 +14,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // الطلبات تصل عبر بروكسي عكسي على الشبكة الخاصة فقط؛ لا نثق برؤوس
+        // X-Forwarded-* إلا منه، حتى لا يستطيع عميل خارجي تزييف عنوانه أو المضيف.
+        // يمكن تجاوز القائمة بـ TRUSTED_PROXIES في بيئة نشر مختلفة.
+        $middleware->trustProxies(
+            at: array_filter(array_map(
+                'trim',
+                explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7'))
+            )),
+            headers: Illuminate\Http\Request::HEADER_X_FORWARDED_FOR
+                | Illuminate\Http\Request::HEADER_X_FORWARDED_HOST
+                | Illuminate\Http\Request::HEADER_X_FORWARDED_PORT
+                | Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO,
+        );
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
