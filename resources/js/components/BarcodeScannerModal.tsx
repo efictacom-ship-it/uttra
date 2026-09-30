@@ -10,6 +10,7 @@ export default function BarcodeScannerModal({ onDetected, onClose }: { onDetecte
 
     useEffect(() => {
         let cancelled = false;
+        let isRunning = false;
         const scanner = new Html5Qrcode(elementId, { verbose: false });
         scannerRef.current = scanner;
 
@@ -24,16 +25,24 @@ export default function BarcodeScannerModal({ onDetected, onClose }: { onDetecte
                     // إطار بلا باركود مقروء، متوقع أثناء البحث عن الصنف
                 },
             )
+            .then(() => {
+                isRunning = !cancelled;
+            })
             .catch(() => {
                 if (!cancelled) setError('تعذّر فتح الكاميرا. تأكد من السماح للمتصفح بالوصول إليها.');
             });
 
         return () => {
             cancelled = true;
-            scannerRef.current
-                ?.stop()
-                .then(() => scannerRef.current?.clear())
-                .catch(() => {});
+            if (!isRunning) return;
+            try {
+                scannerRef.current
+                    ?.stop()
+                    .then(() => scannerRef.current?.clear())
+                    .catch(() => {});
+            } catch {
+                // الماسح كان متوقفًا أصلًا
+            }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
